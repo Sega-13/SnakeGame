@@ -7,7 +7,7 @@ public class Snake : MonoBehaviour
     public Vector2 direction = Vector2.zero;
     List<Transform> segment = new List<Transform>();
     [SerializeField]private GameObject snakeBodyPrefab;
-    [SerializeField]private GameObject Top,Bottom,Left,Right;
+    [SerializeField]public GameObject Top,Bottom,Left,Right;
     [SerializeField]private Camera cam;
     [SerializeField] private GameObject GameOverScreen;
     
