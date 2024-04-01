@@ -14,10 +14,10 @@ public class GameOver : MonoBehaviour
         
 
     }
-    // Start is called before the first frame update
+  
     void Start()
     {
-       // snake = gameObject.GetComponent<Snake>();
+       
         buttonMenu.onClick.AddListener(GoToMenu);
         buttonRestart.onClick.AddListener(RestartGame);
 
@@ -31,7 +31,6 @@ public class GameOver : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-    // Update is called once per frame
     void Update()
     {
         

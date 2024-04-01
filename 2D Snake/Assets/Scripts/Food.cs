@@ -5,10 +5,13 @@ using UnityEngine;
 
 public class Food : MonoBehaviour
 {
-    [SerializeField]private Snake snake;
-    private int score = 0;
-    [SerializeField]private TextMeshProUGUI scoreText;
-
+    [SerializeField] private Walls walls;
+    [SerializeField] private Snake snake;
+    public int score = 0;
+   
+    [SerializeField] public TextMeshProUGUI scoreText;
+    
+    [SerializeField] private GameObject massGainer;
    
    
     private void OnTriggerEnter2D(Collider2D collision)
@@ -20,11 +23,24 @@ public class Food : MonoBehaviour
             ChangePosition();
             snake.Grow();
         }
+        
     }
-    
-    void ChangePosition()
+    private void Update()
     {
-        this.transform.position = new Vector2(Random.Range(snake.Left.transform.position.x,snake.Right.transform.position.x),
-            Random.Range(snake.Top.transform.position.y,snake.Bottom.transform.position.y));
+        if(snake.isGainerActivated)
+        {
+            score = 2 * score;
+            scoreText.text = score.ToString();
+            snake.isGainerActivated = false;
+        }
+       
+     
     }
+    public void ChangePosition()
+    {
+        this.transform.position = new Vector3(Random.Range(walls.GetLeft().transform.position.x+3,walls.GetRight().transform.position.x - 3),
+            Random.Range(walls.GetTop().transform.position.y-3,walls.GetBottom().transform.position.y + 3),0);
+    }
+
+    
 }

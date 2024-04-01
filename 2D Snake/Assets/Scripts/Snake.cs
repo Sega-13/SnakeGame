@@ -1,83 +1,216 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Snake : MonoBehaviour
 {
-    public Vector2 direction = Vector2.zero;
+    enum powerup
+    {
+        Shield,
+        ScoreBoost,
+        SpeedUp
+
+    }
+    public Vector3 direction = Vector3.right;
     List<Transform> segment = new List<Transform>();
     [SerializeField]private GameObject snakeBodyPrefab;
-    [SerializeField]public GameObject Top,Bottom,Left,Right;
-    [SerializeField]private Camera cam;
+    [SerializeField] private  Walls  walls;
     [SerializeField] private GameObject GameOverScreen;
-    
+    [SerializeField] private MassGainer massGainer;
+    [SerializeField] private Snake snake;
+    public GameObject shield;
+    private Boolean isShieldActive;
+    public Boolean isGainerActivated;
+    public Boolean isBurnerActivated;
+    float shieldCurrentTime, shieldMaxTime;
+    float speedUpCurrentTimer, speedUpMaxTimer;
+    private float speed;
+    private Boolean isSpeedUp;
+    private Boolean isGameOver;
+  
    
     void Start()
     {
+        speed = 0.7f;
         segment.Add(this.transform);
-        OrthographicBound(cam);
+        shieldMaxTime = 15;
+        speedUpMaxTimer = 5;
+        shieldCurrentTime = shieldMaxTime;
+        speedUpCurrentTimer = speedUpMaxTimer;
+        InvokeRepeating("ActivatePowerUp", 5, 15);
+       
     }
+  
 
     
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.UpArrow))
+        if(!isGameOver)
         {
-            direction = Vector2.up;
-        }else if(Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            direction = Vector2.down;
-        }else if(Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            direction = Vector2.left;
-        }else if(Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            direction = Vector2.right;
+            if (Input.GetKeyDown(KeyCode.UpArrow) && direction != Vector3.down)
+            {
+                direction = Vector3.up;
+
+            }
+            else if (Input.GetKeyDown(KeyCode.RightArrow) && direction != Vector3.left)
+            {
+                direction = Vector3.right;
+            }
+            if ((direction == Vector3.up || direction == Vector3.down) && Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                direction = Vector3.left;
+            }
+
+            if ((direction == Vector3.right || direction == Vector3.left) && Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                direction = Vector3.down;
+            }
+            if (isShieldActive)
+            {
+                shieldCurrentTime -= Time.deltaTime;
+                if (shieldCurrentTime <= 0)
+                {
+                    isShieldActive = false;
+                    shield.gameObject.SetActive(false);
+                    shieldCurrentTime = shieldMaxTime;
+                }
+            }
+            if (isSpeedUp)
+            {
+                speedUpCurrentTimer -= Time.deltaTime;
+                if (speedUpCurrentTimer <= 0)
+                {
+                    SetSpeed(0.7f);
+                    speedUpCurrentTimer = speedUpMaxTimer;
+                    isSpeedUp = false;
+                }
+
+            }
+
         }
-        
+
+
+
+
+    }
+    public static readonly System.Random randomGen = new System.Random();
+    public static T GetRandomEnumValue<T>(T[] enumValues) where T : Enum
+    {
+        int randomIndex = randomGen.Next(0, enumValues.Length);
+        return enumValues[randomIndex];
+    }
+    void ActivatePowerUp()
+    {
+        int random = (int)GetRandomEnumValue(new powerup[] { powerup.Shield, powerup.ScoreBoost, powerup.SpeedUp });
+        Debug.Log("Random " + random);
+        switch (random)
+        {
+            case 0:
+                MakeShieldActive();
+                break;
+            case 1:
+                massGainer.InstanciateMassGainer();
+                break;
+            case 2:
+                isSpeedUp = true;
+                float speedVal = 2 * speed;
+                SetSpeed(speedVal);
+                break;
+        }
+
+    }
+    public float GetSpeed()
+    {
+        return speed;
+    }
+    public void SetSpeed(float speed)
+    {
+        this.speed = speed;
     }
     private void FixedUpdate()
     {
-        for(int i = segment.Count - 1; i > 0; i--)
+        if (!isGameOver)
         {
-            if (segment[i] != null)
+            for (int i = segment.Count - 1; i > 0; i--)
             {
-                segment[i].position = segment[i-1].position;
+                if (segment[i] != null)
+                {
+                    segment[i].position = segment[i - 1].position;
+                }
             }
+            //Snake movement
+
+            Vector3 snakePosition = new Vector3(this.transform.position.x, this.transform.position.y, 0) + direction * speed;
+            if (snakePosition.x > walls.GetBounds().max.x)
+            {
+                snakePosition.x = walls.GetBounds().min.x;
+            }
+            else if (snakePosition.x < walls.GetBounds().min.x)
+            {
+                snakePosition.x = walls.GetBounds().max.x;
+            }
+            if (snakePosition.y > walls.GetBounds().max.y)
+            {
+                snakePosition.y = walls.GetBounds().min.y;
+            }
+            else if (snakePosition.y < walls.GetBounds().min.y)
+            {
+                snakePosition.y = walls.GetBounds().max.y;
+            }
+            this.transform.position = snakePosition;
         }
-        //Snake movement
-        this.transform.position = new Vector2(Mathf.Round(this.transform.position.x) + direction.x,
-        Mathf.Round(this.transform.position.y) + direction.y);
+        
     }
     public void Grow()
     {
-        Transform segmentPart = Instantiate(this.snakeBodyPrefab).transform;
-        segmentPart.position = segment[segment.Count-1].position;
-        StartCoroutine(changeTag(segmentPart.gameObject));
+        Transform segmentPart = Instantiate(this.snakeBodyPrefab, segment[segment.Count - 1].position,Quaternion.identity).transform;
         segment.Add(segmentPart);
+      
     }
-    public void OrthographicBound(Camera camera)
+    public int  GetSegmentCount()
     {
-        float screenAspect = (float)Screen.width / (float)Screen.height;
-        float cameraHeight = camera.orthographicSize * 2;
-        Bounds bounds = new Bounds(camera.transform.position, new Vector2(cameraHeight * screenAspect, cameraHeight));
-        Top.transform.position = new Vector2(0, bounds.max.y);
-        Bottom.transform.position = new Vector2(0, bounds.min.y);
-        Left.transform.position = new Vector2(bounds.min.x, 0);
-        Right.transform.position = new Vector2(bounds.max.x, 0);
-
-
+        return segment.Count;
     }
+   
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "walls")
+     
+        /*if(collision.gameObject.tag == "obs")
+        {
+            GameOverScreen.SetActive(true);
+        }   */ 
+        if(collision.GetComponentInParent<Walls>() != null)
         {
             ChangeDirection();
         }
-        if(collision.gameObject.tag == "obs")
+        if(collision.GetComponentInParent<MassGainer>() != null)
         {
-            GameOverScreen.SetActive(true);
-        }    
+            isGainerActivated = true;
+            massGainer.GetMassGainerVal().gameObject.SetActive(false);
+        }
+        if (collision.GetComponentInParent<MassBuner>() != null)
+        {
+            isBurnerActivated = true;
+            Destroy(segment[segment.Count - 1].gameObject);
+            segment.RemoveAt(segment.Count - 1);
+            
+        }
+        if(!isShieldActive)
+        {
+            if (collision.GetComponent<Snake>() != null)
+            {
+                isGameOver = true;
+                GameOverScreen.SetActive(true);
+
+            }
+        }
+        
+        
+        
     }
     public void Restart()
     {
@@ -88,38 +221,40 @@ public class Snake : MonoBehaviour
         }
         segment.Clear();
         segment.Add(this.transform);
-        transform.position = Vector2.zero;
+        transform.position = Vector3.zero;
+        isGameOver = false;
     }
     void ChangeDirection()
     {
-        if (direction == Vector2.left)
+        if (direction == Vector3.left)
         {
-            this.transform.position = new Vector2(Mathf.Round(Right.transform.position.x) + direction.x,
-      Mathf.Round(this.transform.position.y) + direction.y);
+            this.transform.position = new Vector3(walls.GetRight().transform.position.x ,
+      this.transform.position.y,0)+direction*speed;
         }
-        if (direction == Vector2.right)
+        if (direction == Vector3.right)
         {
-            this.transform.position = new Vector2(Mathf.Round(Left.transform.position.x) + direction.x,
-      Mathf.Round(this.transform.position.y) + direction.y);
+            this.transform.position = new Vector3(walls.GetLeft().transform.position.x ,
+      this.transform.position.y,0)+direction*speed;
         }
-        if (direction == Vector2.up)
+        if (direction == Vector3.up)
         {
-            this.transform.position = new Vector2(Mathf.Round(this.transform.position.x) + direction.x,
-      Mathf.Round(Bottom.transform.position.y) + direction.y);
+            this.transform.position = new Vector3(this.transform.position.x,
+      walls.GetBottom().transform.position.y,0)+direction*speed;
         }
-        if (direction == Vector2.down)
+        if (direction == Vector3.down)
         {
-            this.transform.position = new Vector2(Mathf.Round(this.transform.position.x) + direction.x,
-      Mathf.Round(Top.transform.position.y) + direction.y);
+            this.transform.position = new Vector3(this.transform.position.x,
+      walls.GetTop().transform.position.y,0)+direction*speed;
         }
     }
-    public IEnumerator changeTag(GameObject segment)
+
+
+    private void MakeShieldActive()
     {
-        yield return new WaitForSeconds(1);
-        if(segment != null)
-        {
-            segment.tag = "obs";
-        }
-       
+        isShieldActive = true;
+        shield.gameObject.SetActive(true);
+
     }
+
+
 }
