@@ -1,13 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class Snake : MonoBehaviour
 {
+    
     enum powerup
     {
         Shield,
@@ -15,13 +19,16 @@ public class Snake : MonoBehaviour
         SpeedUp
 
     }
+    
     public Vector3 direction = Vector3.right;
     List<Transform> segment = new List<Transform>();
     [SerializeField]private GameObject snakeBodyPrefab;
     [SerializeField] private  Walls  walls;
     [SerializeField] private GameObject GameOverScreen;
     [SerializeField] private MassGainer massGainer;
+    [SerializeField] private MassBuner burner;
     [SerializeField] private Snake snake;
+    [SerializeField] private Food food;
     public GameObject shield;
     private Boolean isShieldActive;
     public Boolean isGainerActivated;
@@ -31,7 +38,9 @@ public class Snake : MonoBehaviour
     private float speed;
     private Boolean isSpeedUp;
     private Boolean isGameOver;
-  
+    private static int blueSegment, greenSegment;
+    private Transform SegmentVal;
+
    
     void Start()
     {
@@ -41,8 +50,12 @@ public class Snake : MonoBehaviour
         speedUpMaxTimer = 5;
         shieldCurrentTime = shieldMaxTime;
         speedUpCurrentTimer = speedUpMaxTimer;
-        InvokeRepeating("ActivatePowerUp", 5, 15);
-       
+        if(!isGameOver)
+        {
+            InvokeRepeating("ActivatePowerUp", 5, 15);
+        }
+        
+       // Debug.Log("@@@@@@@@@@ " + snake.gameObject.name);
     }
   
 
@@ -51,24 +64,48 @@ public class Snake : MonoBehaviour
     {
         if(!isGameOver)
         {
-            if (Input.GetKeyDown(KeyCode.UpArrow) && direction != Vector3.down)
+            if(snake.gameObject.name == "Snake")
             {
-                direction = Vector3.up;
+                if (Input.GetKeyDown(KeyCode.UpArrow) && direction != Vector3.down)
+                {
+                    direction = Vector3.up;
 
-            }
-            else if (Input.GetKeyDown(KeyCode.RightArrow) && direction != Vector3.left)
+                }
+                else if (Input.GetKeyDown(KeyCode.RightArrow) && direction != Vector3.left)
+                {
+                    direction = Vector3.right;
+                }
+                if ((direction == Vector3.up || direction == Vector3.down) && Input.GetKeyDown(KeyCode.LeftArrow))
+                {
+                    direction = Vector3.left;
+                }
+
+                if ((direction == Vector3.right || direction == Vector3.left) && Input.GetKeyDown(KeyCode.DownArrow))
+                {
+                    direction = Vector3.down;
+                }
+            }else if(snake.gameObject.name == "SnakeBlue")
             {
-                direction = Vector3.right;
-            }
-            if ((direction == Vector3.up || direction == Vector3.down) && Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                direction = Vector3.left;
+                if (Input.GetKeyDown(KeyCode.W) && direction != Vector3.down)
+                {
+                    direction = Vector3.up;
+
+                }
+                else if (Input.GetKeyDown(KeyCode.D) && direction != Vector3.left)
+                {
+                    direction = Vector3.right;
+                }
+                if ((direction == Vector3.up || direction == Vector3.down) && Input.GetKeyDown(KeyCode.A))
+                {
+                    direction = Vector3.left;
+                }
+
+                if ((direction == Vector3.right || direction == Vector3.left) && Input.GetKeyDown(KeyCode.S))
+                {
+                    direction = Vector3.down;
+                }
             }
 
-            if ((direction == Vector3.right || direction == Vector3.left) && Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                direction = Vector3.down;
-            }
             if (isShieldActive)
             {
                 shieldCurrentTime -= Time.deltaTime;
@@ -106,7 +143,7 @@ public class Snake : MonoBehaviour
     void ActivatePowerUp()
     {
         int random = (int)GetRandomEnumValue(new powerup[] { powerup.Shield, powerup.ScoreBoost, powerup.SpeedUp });
-        Debug.Log("Random " + random);
+      //  Debug.Log("Random " + random);
         switch (random)
         {
             case 0:
@@ -169,7 +206,30 @@ public class Snake : MonoBehaviour
     {
         Transform segmentPart = Instantiate(this.snakeBodyPrefab, segment[segment.Count - 1].position,Quaternion.identity).transform;
         segment.Add(segmentPart);
+        
       
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            if (segment.Count > 2)
+            {
+                burner.massBurnerActivated = true;
+            }
+        }
+        if (greenSegment > 2 && blueSegment > 2)
+        {
+            burner.massBurnerActivated = true;
+        }
+        if (snake.gameObject.name == "Snake")
+        {
+            greenSegment++;
+        }
+        if (snake.gameObject.name == "SnakeBlue")
+        {
+            blueSegment++;
+        }
+
+
+
     }
     public int  GetSegmentCount()
     {
@@ -178,12 +238,16 @@ public class Snake : MonoBehaviour
    
     private void OnTriggerEnter2D(Collider2D collision)
     {
-     
-        /*if(collision.gameObject.tag == "obs")
+        if(!isShieldActive)
         {
-            GameOverScreen.SetActive(true);
-        }   */ 
-        if(collision.GetComponentInParent<Walls>() != null)
+            if (collision.gameObject.tag == "obs")
+            {
+                isGameOver = true;
+                GameOverScreen.SetActive(true);
+            }
+        }
+        
+        if (collision.GetComponentInParent<Walls>() != null)
         {
             ChangeDirection();
         }
@@ -191,23 +255,31 @@ public class Snake : MonoBehaviour
         {
             isGainerActivated = true;
             massGainer.GetMassGainerVal().gameObject.SetActive(false);
+            if(snake.gameObject.name == "Snake")
+            {
+                food.SnakeScoreBooster();
+            }else if(snake.gameObject.name == "SnakeBlue")
+            {
+                food.SnakeBlueScoreBooster();
+            }
         }
         if (collision.GetComponentInParent<MassBuner>() != null)
         {
             isBurnerActivated = true;
+            burner.GetMassBurnerVal().gameObject.SetActive(false);
             Destroy(segment[segment.Count - 1].gameObject);
             segment.RemoveAt(segment.Count - 1);
             
         }
-        if(!isShieldActive)
-        {
-            if (collision.GetComponent<Snake>() != null)
+     //   if(!isShieldActive)
+       // {
+           /* if (collision.GetComponent<Snake>() != null)
             {
                 isGameOver = true;
                 GameOverScreen.SetActive(true);
 
-            }
-        }
+            }*/
+        //}
         
         
         

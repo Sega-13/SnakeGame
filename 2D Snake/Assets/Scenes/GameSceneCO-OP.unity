@@ -308,9 +308,9 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -1332,9 +1332,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   walls: {fileID: 274497312}
-  snake: {fileID: 918070529}
   score: 0
   scoreText: {fileID: 28661455}
+  blueScoreText: {fileID: 1463083634}
   massGainer: {fileID: 6534870978869994719, guid: 6fdb34bad98079b4789e25cf0ada6acd, type: 3}
 --- !u!61 &814302916
 BoxCollider2D:
@@ -1654,6 +1654,7 @@ MonoBehaviour:
   snake: {fileID: 918070529}
   MassBurnerObj: {fileID: 1339799339385351561, guid: f85b4b914e66b214aad0e578f20949f2, type: 3}
   parentObj: {fileID: 912886530}
+  massBurnerActivated: 0
 --- !u!1 &918070528
 GameObject:
   m_ObjectHideFlags: 0
@@ -1668,7 +1669,7 @@ GameObject:
   - component: {fileID: 918070529}
   m_Layer: 0
   m_Name: Snake
-  m_TagString: Untagged
+  m_TagString: obs
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1690,7 +1691,9 @@ MonoBehaviour:
   walls: {fileID: 274497312}
   GameOverScreen: {fileID: 555639875}
   massGainer: {fileID: 1275784608}
+  burner: {fileID: 912886533}
   snake: {fileID: 918070529}
+  food: {fileID: 814302915}
   shield: {fileID: 1519724704}
   isGainerActivated: 0
   isBurnerActivated: 0
@@ -1978,7 +1981,7 @@ GameObject:
   - component: {fileID: 1143405501}
   m_Layer: 0
   m_Name: SnakeBlue
-  m_TagString: Untagged
+  m_TagString: obs
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2112,7 +2115,9 @@ MonoBehaviour:
   walls: {fileID: 274497312}
   GameOverScreen: {fileID: 555639875}
   massGainer: {fileID: 1275784608}
+  burner: {fileID: 912886533}
   snake: {fileID: 1143405501}
+  food: {fileID: 814302915}
   shield: {fileID: 1519724704}
   isGainerActivated: 0
   isBurnerActivated: 0
@@ -3102,6 +3107,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 1908461053}
   - {fileID: 918070532}
+  - {fileID: 1143405498}
   - {fileID: 814302918}
   - {fileID: 274497313}
   - {fileID: 62288277}
@@ -3109,4 +3115,3 @@ SceneRoots:
   - {fileID: 1519724707}
   - {fileID: 1275784607}
   - {fileID: 912886532}
-  - {fileID: 1143405498}

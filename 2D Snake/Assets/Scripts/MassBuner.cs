@@ -9,6 +9,7 @@ public class MassBuner : MonoBehaviour
     [SerializeField] private Snake snake;
     [SerializeField] private GameObject MassBurnerObj;
     [SerializeField] private GameObject parentObj;
+    public Boolean massBurnerActivated;
     Transform MassBurnerVal;
     float burnerMaxTimer, burnerCurrentTimer;
     private Boolean isMassBurnerActivated = false;
@@ -30,12 +31,7 @@ public class MassBuner : MonoBehaviour
     }
     void Update()
     {
-       
-        if(snake.isBurnerActivated)
-        {
-            MassBurnerVal.gameObject.SetActive(false);
-            snake.isBurnerActivated = false;
-        }
+      
         if(isMassBurnerActivated)
         {
             burnerCurrentTimer -= Time.deltaTime;
@@ -51,11 +47,10 @@ public class MassBuner : MonoBehaviour
     }
     void InstanciateMassBuerner()
     {
-       
-        if(snake.GetSegmentCount() > 2 ) 
+        if(massBurnerActivated) 
         {
-           
-            isMassBurnerActivated = true;
+            massBurnerActivated = false;
+             isMassBurnerActivated = true;
             if (MassBurnerVal == null)
             {
                 MassBurnerVal = Instantiate(this.MassBurnerObj, parentObj.transform).transform;

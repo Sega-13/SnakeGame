@@ -6,35 +6,54 @@ using UnityEngine;
 public class Food : MonoBehaviour
 {
     [SerializeField] private Walls walls;
-    [SerializeField] private Snake snake;
     public int score = 0;
-   
     [SerializeField] public TextMeshProUGUI scoreText;
-    
+    [SerializeField] public TextMeshProUGUI blueScoreText;
     [SerializeField] private GameObject massGainer;
-   
-   
+    private Snake snake;
+    private int blueScore;
+    
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.GetComponent<Snake>() != null)
+        snake = collision.gameObject.GetComponent<Snake>();
+        if (collision.gameObject.GetComponent<Snake>() != null)
         {
-            score++;
-            scoreText.text = score.ToString();
-            ChangePosition();
-            snake.Grow();
+            
+           
+            
+            if (snake.gameObject.name == "Snake")
+            {
+                score++;
+                scoreText.text = score.ToString();
+                ChangePosition();
+                snake.Grow();
+            }
+            else if (snake.gameObject.name == "SnakeBlue")
+            {
+                blueScore++;
+                blueScoreText.text = blueScore.ToString();
+                ChangePosition();
+                snake.Grow();
+            }
+
+
         }
         
     }
     private void Update()
     {
-        if(snake.isGainerActivated)
-        {
-            score = 2 * score;
-            scoreText.text = score.ToString();
-            snake.isGainerActivated = false;
-        }
-       
-     
+      
+
+    }
+    public void SnakeScoreBooster()
+    {
+        score = 2 * score;
+        scoreText.text = score.ToString();
+    } 
+    public void SnakeBlueScoreBooster()
+    {
+        blueScore = 2 * blueScore;
+        blueScoreText.text = blueScore.ToString();
     }
     public void ChangePosition()
     {
