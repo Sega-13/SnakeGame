@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LobbyController : MonoBehaviour
@@ -10,6 +11,8 @@ public class LobbyController : MonoBehaviour
     [SerializeField] Button buttonInstruction;
     [SerializeField] Button buttonBack;
     [SerializeField] Button buttonBackToMenu;
+    [SerializeField] Button buttonOnePlayer;
+    [SerializeField] Button buttonTwoPlayer;
 
     [SerializeField] GameObject StartScreen;
     [SerializeField] GameObject InstructionScreen;
@@ -22,6 +25,8 @@ public class LobbyController : MonoBehaviour
         buttonInstruction.onClick.AddListener(PlayInstruction);
         buttonBack.onClick.AddListener(GoToLobby);
         buttonBackToMenu.onClick.AddListener(BackToMenu);
+        buttonOnePlayer.onClick.AddListener(OnePlayer);
+        buttonTwoPlayer.onClick.AddListener(TwoPlayer);
     }
     public void StartGame()
     {
@@ -42,5 +47,13 @@ public class LobbyController : MonoBehaviour
     public void BackToMenu()
     {
         StartScreen.SetActive(false);
+    }
+    public void OnePlayer()
+    {
+        SceneManager.LoadScene(1);
+    }
+    public void TwoPlayer()
+    {
+        SceneManager.LoadScene(2);
     }
 }
