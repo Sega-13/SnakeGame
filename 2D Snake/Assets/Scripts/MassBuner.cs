@@ -13,7 +13,6 @@ public class MassBuner : MonoBehaviour
     Transform MassBurnerVal;
     float burnerMaxTimer, burnerCurrentTimer;
     private Boolean isMassBurnerActivated = false;
-    int count = 0;
     void Start()
     {
         InvokeRepeating("InstanciateMassBuerner", 3, 10);

@@ -29,6 +29,8 @@ public class Snake : MonoBehaviour
     [SerializeField] private MassBuner burner;
     [SerializeField] private Snake snake;
     [SerializeField] private Food food;
+    [SerializeField] private TextMeshProUGUI highScore;
+    [SerializeField] private TextMeshProUGUI winnerName;
     public GameObject shield;
     private Boolean isShieldActive;
     public Boolean isGainerActivated;
@@ -37,28 +39,29 @@ public class Snake : MonoBehaviour
     float speedUpCurrentTimer, speedUpMaxTimer;
     private float speed;
     private Boolean isSpeedUp;
-    private Boolean isGameOver;
+    public Boolean isGameOver;
     private static int blueSegment, greenSegment;
     private Transform SegmentVal;
 
    
     void Start()
     {
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+        {
+            UpdateHighScoreText();
+        }
+       
         speed = 0.7f;
         segment.Add(this.transform);
-        shieldMaxTime = 15;
+        shieldMaxTime = 10;
         speedUpMaxTimer = 5;
         shieldCurrentTime = shieldMaxTime;
         speedUpCurrentTimer = speedUpMaxTimer;
-        if(!isGameOver)
-        {
-            InvokeRepeating("ActivatePowerUp", 5, 15);
-        }
-        
-       // Debug.Log("@@@@@@@@@@ " + snake.gameObject.name);
+        StartCoroutine(ActivatePowerUp());
+       
     }
   
-
+    
     
     void Update()
     {
@@ -84,7 +87,8 @@ public class Snake : MonoBehaviour
                 {
                     direction = Vector3.down;
                 }
-            }else if(snake.gameObject.name == "SnakeBlue")
+            }
+            if(snake.gameObject.name == "SnakeBlue")
             {
                 if (Input.GetKeyDown(KeyCode.W) && direction != Vector3.down)
                 {
@@ -127,7 +131,7 @@ public class Snake : MonoBehaviour
                 }
 
             }
-
+           
         }
 
 
@@ -140,25 +144,30 @@ public class Snake : MonoBehaviour
         int randomIndex = randomGen.Next(0, enumValues.Length);
         return enumValues[randomIndex];
     }
-    void ActivatePowerUp()
+    IEnumerator ActivatePowerUp()
     {
-        int random = (int)GetRandomEnumValue(new powerup[] { powerup.Shield, powerup.ScoreBoost, powerup.SpeedUp });
-      //  Debug.Log("Random " + random);
-        switch (random)
+        while(!isGameOver)
         {
-            case 0:
-                MakeShieldActive();
-                break;
-            case 1:
-                massGainer.InstanciateMassGainer();
-                break;
-            case 2:
-                isSpeedUp = true;
-                float speedVal = 2 * speed;
-                SetSpeed(speedVal);
-                break;
+            int random = (int)GetRandomEnumValue(new powerup[] { powerup.Shield, powerup.ScoreBoost, powerup.SpeedUp });
+            //  Debug.Log("Random " + random);
+            switch (random)
+            {
+                case 0:
+                    MakeShieldActive();
+                    break;
+                case 1:
+                    massGainer.InstanciateMassGainer();
+                    break;
+                case 2:
+                    isSpeedUp = true;
+                    float speedVal = 2 * speed;
+                    SetSpeed(speedVal);
+                    break;
+            }
+            yield return new WaitForSeconds(15);
         }
-
+       
+        
     }
     public float GetSpeed()
     {
@@ -199,6 +208,7 @@ public class Snake : MonoBehaviour
                 snakePosition.y = walls.GetBounds().max.y;
             }
             this.transform.position = snakePosition;
+
         }
         
     }
@@ -235,6 +245,13 @@ public class Snake : MonoBehaviour
     {
         return segment.Count;
     }
+    public void CheckHighScore()
+    {
+        if(food.score > PlayerPrefs.GetInt("HighScore", 0))
+        {
+            PlayerPrefs.SetInt("HighScore",food.score);
+        }
+    }
    
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -243,8 +260,54 @@ public class Snake : MonoBehaviour
             if (collision.gameObject.tag == "obs")
             {
                 isGameOver = true;
+                if (snake.gameObject.name == "Snake")
+                {
+                    CheckHighScore();
+                }
+                if(SceneManager.GetActiveScene().buildIndex == 2)
+                {
+                    if(food.score > food.GetBlueScore())
+                    {
+                        winnerName.text = "GreenSnake";
+                    }
+                    else if(food.score < food.GetBlueScore())
+                    {
+                        winnerName.text = "BlueSnake";
+                    }
+                    else
+                    {
+                        winnerName.text = "None";
+                    }
+                }
+               
+
+                
+
+                if (snake.gameObject.name == "SnakeBlue" || snake.gameObject.name == "Snake")
+                {
+                    snake.gameObject.SetActive(false);
+                   
+                }
+                if(collision.gameObject.name == "Snake" || collision.gameObject.name == "SnakeBlue")
+                {
+                    collision.gameObject.SetActive(false);
+                    
+                   
+                }
+                for (int i = 0; i < segment.Count; i++)
+                {
+                    Destroy(this.segment[i].gameObject);
+                }
+                segment.Clear();
+                
+                
+                StopCoroutine(ActivatePowerUp());
+                food.gameObject.SetActive(false);
+               // collision.gameObject.SetActive(false);
                 GameOverScreen.SetActive(true);
+                
             }
+            
         }
         
         if (collision.GetComponentInParent<Walls>() != null)
@@ -271,15 +334,7 @@ public class Snake : MonoBehaviour
             segment.RemoveAt(segment.Count - 1);
             
         }
-     //   if(!isShieldActive)
-       // {
-           /* if (collision.GetComponent<Snake>() != null)
-            {
-                isGameOver = true;
-                GameOverScreen.SetActive(true);
-
-            }*/
-        //}
+     
         
         
         
@@ -287,14 +342,15 @@ public class Snake : MonoBehaviour
     public void Restart()
     {
         GameOverScreen.SetActive(false);
-        for (int i = 1; i < segment.Count; i++)
-        {
-            Destroy(segment[i].gameObject);
+        if(SceneManager.GetActiveScene().buildIndex == 1) {
+            SceneManager.LoadScene(1);
         }
-        segment.Clear();
-        segment.Add(this.transform);
-        transform.position = Vector3.zero;
-        isGameOver = false;
+        if (SceneManager.GetActiveScene().buildIndex == 2)
+        {
+            SceneManager.LoadScene(2);
+        }
+
+
     }
     void ChangeDirection()
     {
@@ -327,6 +383,9 @@ public class Snake : MonoBehaviour
         shield.gameObject.SetActive(true);
 
     }
-
+    void UpdateHighScoreText()
+    {
+        highScore.text = PlayerPrefs.GetInt("HighScore").ToString();
+    }
 
 }

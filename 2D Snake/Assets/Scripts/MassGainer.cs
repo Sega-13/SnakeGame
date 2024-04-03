@@ -38,7 +38,7 @@ public class MassGainer : MonoBehaviour
         if(isMassGainerActivated)
         {
             gainerCurrentTimer -= Time.deltaTime;
-            if (gainerCurrentTimer <= 0)
+            if (gainerCurrentTimer <= 0 || snake.isGameOver)
             {
                 snake.isGainerActivated = false;
                 MassGainerVal.gameObject.SetActive(false);

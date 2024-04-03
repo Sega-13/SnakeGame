@@ -13,6 +13,15 @@ public class Food : MonoBehaviour
     private Snake snake;
     private int blueScore;
     
+
+    public void SetBlueScore(int blueScore)
+    {
+        this.blueScore = blueScore;
+    }
+    public int GetBlueScore()
+    {
+        return this.blueScore;
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         snake = collision.gameObject.GetComponent<Snake>();
@@ -27,11 +36,13 @@ public class Food : MonoBehaviour
                 scoreText.text = score.ToString();
                 ChangePosition();
                 snake.Grow();
+                snake.CheckHighScore();
             }
             else if (snake.gameObject.name == "SnakeBlue")
             {
                 blueScore++;
                 blueScoreText.text = blueScore.ToString();
+                SetBlueScore(blueScore);
                 ChangePosition();
                 snake.Grow();
             }
@@ -54,6 +65,7 @@ public class Food : MonoBehaviour
     {
         blueScore = 2 * blueScore;
         blueScoreText.text = blueScore.ToString();
+        SetBlueScore(blueScore);
     }
     public void ChangePosition()
     {

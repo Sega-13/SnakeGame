@@ -1490,6 +1490,8 @@ MonoBehaviour:
   buttonInstruction: {fileID: 226331751}
   buttonBack: {fileID: 1410869075}
   buttonBackToMenu: {fileID: 7485412}
+  buttonOnePlayer: {fileID: 302248659}
+  buttonTwoPlayer: {fileID: 981573867}
   StartScreen: {fileID: 749413902}
   InstructionScreen: {fileID: 1409066212}
 --- !u!1 &749413902
@@ -1509,7 +1511,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &749413903
 RectTransform:
   m_ObjectHideFlags: 0
