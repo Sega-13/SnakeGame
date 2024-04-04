@@ -225,7 +225,7 @@ public class Snake : MonoBehaviour
                 burner.massBurnerActivated = true;
             }
         }
-        if (greenSegment > 2 && blueSegment > 2)
+        else if (greenSegment > 2 && blueSegment > 2)
         {
             burner.massBurnerActivated = true;
         }
@@ -259,8 +259,9 @@ public class Snake : MonoBehaviour
         {
             if (collision.gameObject.tag == "obs")
             {
+               
                 isGameOver = true;
-                if (snake.gameObject.name == "Snake")
+                if (SceneManager.GetActiveScene().buildIndex == 1)
                 {
                     CheckHighScore();
                 }
@@ -279,33 +280,30 @@ public class Snake : MonoBehaviour
                         winnerName.text = "None";
                     }
                 }
-               
-
-                
-
+               /* Destroy(collision.gameObject);
+                Destroy(snake.gameObject);*/
                 if (snake.gameObject.name == "SnakeBlue" || snake.gameObject.name == "Snake")
                 {
                     snake.gameObject.SetActive(false);
-                   
+
                 }
-                if(collision.gameObject.name == "Snake" || collision.gameObject.name == "SnakeBlue")
+                if (collision.gameObject.name == "Snake" || collision.gameObject.name == "SnakeBlue")
                 {
                     collision.gameObject.SetActive(false);
-                    
-                   
+
+
                 }
                 for (int i = 0; i < segment.Count; i++)
                 {
                     Destroy(this.segment[i].gameObject);
                 }
                 segment.Clear();
-                
-                
+
+
                 StopCoroutine(ActivatePowerUp());
                 food.gameObject.SetActive(false);
-               // collision.gameObject.SetActive(false);
+                // collision.gameObject.SetActive(false);
                 GameOverScreen.SetActive(true);
-                
             }
             
         }
@@ -339,16 +337,22 @@ public class Snake : MonoBehaviour
         
         
     }
+    
+
     public void Restart()
     {
-        GameOverScreen.SetActive(false);
-        if(SceneManager.GetActiveScene().buildIndex == 1) {
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+        {
             SceneManager.LoadScene(1);
         }
         if (SceneManager.GetActiveScene().buildIndex == 2)
         {
             SceneManager.LoadScene(2);
         }
+        greenSegment = 0;
+        blueSegment = 0;
+        GameOverScreen.SetActive(false);
+        
 
 
     }
