@@ -1278,15 +1278,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\t\n\n \t\u2022 Green Player can move with Arrow keys.\r\n\t\u2022 Blue
-    Player can move with WASD.\r\n\t\u2022 To Pause the game, use Spacebar or pause
-    button.\r\n\t\u2022  Different typed of food have different symbols:\r\n\t\t\u2022
-    M+: Mass Gainer\r\n\t\t\u2022 M-: Mass Reducer\r\n\t\t\u2022 S : Shield PowerUp
-    for 10 seconds. Snake can pass through itself.\r\n\t\t\u2022 X: Multiplier Power
-    Up for 10 seconds.  Snake\u2019s score will\n\t\t       increase by 5.\r\n\t\t\u2022
-    ++: Speed Power UP for 10 seconds. Snake\u2019s speed will increase.\r\n\t\u2022
-    If Player 1 collides with Player2, then Player 1 losses & vice versa.\r\n\t\u2022
-    If both Players collide Head-on, then the player with higher score win. \r\n"
+  m_text: "\n\n\t\u2022 Green Player can move with Arrow keys.\r\n\t\u2022 Blue Player
+    can move with WASD.\r\n\t\u2022 To Pause the game, use Escape button.\r\n\t\u2022
+    Different types of food and PowerUp:\r\n\t\t\u2022 Mass Gainer\r\n\t\t\u2022
+    Mass Reducer\r\n\t\t\u2022 Shield PowerUp for 10 seconds. Snake can pass through
+    itself.\r\n\t\t\u2022 Speed Power UP for 10 seconds. Snake\u2019s speed will
+    increase.\r\n\t\u2022 If Snake A bites snake B then snake B will die, and vice
+    versa.\r\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2330,7 +2328,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1409066213
 RectTransform:
   m_ObjectHideFlags: 0
